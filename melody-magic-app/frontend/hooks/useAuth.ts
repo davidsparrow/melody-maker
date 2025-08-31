@@ -41,7 +41,7 @@ export function useAuth(): UseAuthReturn {
 
   const checkAuthStatus = useCallback(async () => {
     try {
-      const supabaseClient = supabase();
+      const supabaseClient = typedSupabase();
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (session) {
         await fetchUserProfile(session.user);

@@ -211,6 +211,12 @@ function getSupabaseClient(): ReturnType<typeof createClient<Database>> {
   return supabaseClient;
 }
 
+// Alternative approach: try to force type resolution by creating a typed client
+export const typedSupabase = () => {
+  const client = getSupabaseClient();
+  return client as ReturnType<typeof createClient<Database>>;
+};
+
 // Export a function that returns the client, ensuring it's only called at runtime
 export function getSupabase() {
   return getSupabaseClient();
