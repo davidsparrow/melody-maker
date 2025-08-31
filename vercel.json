@@ -1,6 +1,0 @@
-{
-  "buildCommand": "cd melody-magic-app/frontend && npm install && npm run build",
-  "outputDirectory": "melody-magic-app/frontend/.next",
-  "installCommand": "echo 'Skipping install, using buildCommand instead'",
-  "framework": "nextjs"
-}
