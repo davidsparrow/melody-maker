@@ -9,15 +9,28 @@ let supabaseClient: ReturnType<typeof createClient> | null = null;
 
 function getSupabaseClient() {
   if (!supabaseClient) {
-    // Validate environment variables at runtime, not build time
-    if (!supabaseUrl || !supabaseAnonKey) {
-      throw new Error(
-        'Missing Supabase environment variables. Please check your .env.local file.'
-      );
+    // Check if we're in a browser environment and have the required variables
+    if (typeof window !== 'undefined' && (!supabaseUrl || !supabaseAnonKey)) {
+      console.warn('Supabase environment variables not set - auth features will be disabled');
+      // Return a mock client that won't crash the app
+      return {
+        auth: {
+          getSession: async () => ({ data: { session: null }, error: null }),
+          onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+          signInWithPassword: async () => ({ data: null, error: new Error('Supabase not configured') }),
+          signUp: async () => ({ data: null, error: new Error('Supabase not configured') }),
+          signOut: async () => ({ error: null }),
+          resetPasswordForEmail: async () => ({ error: null }),
+        },
+        from: () => ({
+          select: () => ({ eq: () => ({ single: async () => ({ data: null, error: new Error('Supabase not configured') }) }) }),
+          insert: () => ({ select: () => ({ single: async () => ({ data: null, error: new Error('Supabase not configured') }) }) }),
+        }),
+      } as any;
     }
 
     // Create basic Supabase client - types will be inferred at runtime
-    supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+    supabaseClient = createClient(supabaseUrl!, supabaseAnonKey!, {
       auth: {
         autoRefreshToken: true,
         persistSession: true,

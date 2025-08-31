@@ -1,8 +1,41 @@
+'use client';
+
 import Link from 'next/link';
 import { ArrowRight, Music, Zap, Sparkles } from 'lucide-react';
 import { APP_CONFIG } from '@/lib/config';
+import { useEffect, useState } from 'react';
 
 export default function LandingPage() {
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    // Catch any errors that might occur during component initialization
+    const handleError = (event: ErrorEvent) => {
+      console.error('Caught error:', event.error);
+      setError(event.error);
+    };
+
+    window.addEventListener('error', handleError);
+    return () => window.removeEventListener('error', handleError);
+  }, []);
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-red-50">
+        <div className="text-center p-8">
+          <h1 className="text-2xl font-bold text-red-800 mb-4">Something went wrong</h1>
+          <p className="text-red-600 mb-4">{error.message}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Reload Page
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white">
       {/* Hero Section */}

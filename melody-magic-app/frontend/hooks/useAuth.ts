@@ -27,7 +27,7 @@ export function useAuth(): UseAuthReturn {
     // Listen for auth state changes
     const supabaseClient = supabase();
     const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(
-      async (event, session) => {
+      async (event: string, session: any) => {
         if (event === 'SIGNED_IN' && session) {
           await fetchUserProfile(session.user);
         } else if (event === 'SIGNED_OUT') {
@@ -48,6 +48,10 @@ export function useAuth(): UseAuthReturn {
       }
     } catch (error) {
       console.error('Auth check failed:', error);
+      // Don't crash the app if Supabase is not configured
+      if (error instanceof Error && error.message.includes('Supabase not configured')) {
+        console.warn('Supabase not configured - auth features disabled');
+      }
       setUser(null);
     } finally {
       setIsLoading(false);
