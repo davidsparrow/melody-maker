@@ -8,10 +8,11 @@ import { Plus, Music, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { DashboardProjectCard } from '@/components/dashboard/DashboardProjectCard';
 import { CreateProjectModal } from '@/components/dashboard/CreateProjectModal';
 import { useUIStore } from '@/store/uiStore';
+import { Project } from '@/types/project';
 
 export default function DashboardPage() {
   const { user, isAuthenticated, isLoading } = useAuth();
-  const { projects, isLoadingProjects, projectsError, setProjectsLoading, setProjectsError } = useProjectStore();
+  const { projects, isLoadingProjects, projectsError, setProjects, setProjectsLoading, setProjectsError } = useProjectStore();
   const { isUploadModalOpen, setUploadModalOpen } = useUIStore();
   const router = useRouter();
 
@@ -41,22 +42,22 @@ export default function DashboardPage() {
       // }
       
       // Mock data for now
-      const mockProjects = [
+      const mockProjects: Project[] = [
         {
           id: '1',
           userId: user?.id || '',
           title: 'Summer Vibes Track',
-          status: 'completed',
-          createdAt: '2024-01-15T10:00:00Z',
-          updatedAt: '2024-01-15T11:30:00Z',
+          status: 'completed' as const,
+          createdAt: new Date('2024-01-15T10:00:00Z'),
+          updatedAt: new Date('2024-01-15T11:30:00Z'),
         },
         {
           id: '2',
           userId: user?.id || '',
           title: 'Late Night Session',
-          status: 'analyzing',
-          createdAt: '2024-01-14T20:00:00Z',
-          updatedAt: '2024-01-14T20:15:00Z',
+          status: 'analyzing' as const,
+          createdAt: new Date('2024-01-14T20:00:00Z'),
+          updatedAt: new Date('2024-01-14T20:15:00Z'),
         },
       ];
       

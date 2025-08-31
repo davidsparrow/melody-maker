@@ -12,7 +12,7 @@ export const API_CONFIG = {
 export const AUDIO_CONFIG = {
   maxFileSize: 50 * 1024 * 1024, // 50 MB
   maxDuration: 10 * 60, // 10 minutes
-  supportedFormats: ['audio/mpeg', 'audio/wav', 'audio/mp3'],
+  supportedFormats: ['audio/mpeg', 'audio/wav', 'audio/mp3'] as string[],
   chunkSize: 1024 * 1024, // 1MB chunks for large file uploads
 } as const;
 
