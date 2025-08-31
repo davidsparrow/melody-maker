@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/**/*.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/health",
+      "dest": "/api/health.ts"
+    },
+    {
+      "src": "/api/projects",
+      "dest": "/api/projects.ts"
+    },
+    {
+      "src": "/api/uploads",
+      "dest": "/api/uploads.ts"
+    },
+    {
+      "src": "/api/analysis",
+      "dest": "/api/analysis.ts"
+    },
+    {
+      "src": "/api/generation",
+      "dest": "/api/generation.ts"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/health.ts"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}
