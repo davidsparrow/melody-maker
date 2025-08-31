@@ -25,8 +25,7 @@ export function useAuth(): UseAuthReturn {
     checkAuthStatus();
     
     // Listen for auth state changes
-    const supabaseClient = supabase();
-    const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (event === 'SIGNED_IN' && session) {
           await fetchUserProfile(session.user);
@@ -41,8 +40,7 @@ export function useAuth(): UseAuthReturn {
 
   const checkAuthStatus = useCallback(async () => {
     try {
-      const supabaseClient = supabase();
-      const { data: { session } } = await supabaseClient.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         await fetchUserProfile(session.user);
       }
@@ -56,38 +54,28 @@ export function useAuth(): UseAuthReturn {
 
   const fetchUserProfile = useCallback(async (supabaseUser: User) => {
     try {
-      const supabaseClient = supabase();
-      // TODO: Fix typing issues with Supabase client
-      // const { data: profile, error } = await supabaseClient
-      //   .from('profiles')
-      //   .select('*')
-      //   .eq('id', supabaseUser.id)
-      //   .single();
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', supabaseUser.id)
+        .single();
 
-      // if (error) {
-      //   console.error('Error fetching user profile:', error);
-      //   // If profile doesn't exist, create one
-      //   if (error.code === 'PGRST116') {
-      //     await createUserProfile(supabaseUser);
-      //   } else {
-      //     throw error;
-      //   }
-      // } else {
-      //   setUser(profile);
-      // }
-      
-      // Temporary: create a mock profile
-      const mockProfile: Tables<'profiles'> = {
-        id: supabaseUser.id,
-        email: supabaseUser.email || '',
-        full_name: null,
-        avatar_url: null,
-        plan: 'free',
-        credits: 10,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-      setUser(mockProfile);
+      if (error) {
+        console.error('Error fetching user profile:', error);
+        // If profile doesn't exist, create one
+        if (error.message === 'Supabase not configured') {
+          // Handle configuration error
+          console.error('Supabase not configured');
+          return;
+        }
+        if ('code' in error && error.code === 'PGRST116') {
+          await createUserProfile(supabaseUser);
+        } else {
+          throw error;
+        }
+      } else {
+        setUser(profile);
+      }
     } catch (error) {
       console.error('Failed to fetch user profile:', error);
       setUser(null);
@@ -96,38 +84,23 @@ export function useAuth(): UseAuthReturn {
 
   const createUserProfile = useCallback(async (supabaseUser: User) => {
     try {
-      const supabaseClient = supabase();
-      // TODO: Fix typing issues with Supabase client
-      // const { data: profile, error } = await supabaseClient
-      //   .from('profiles')
-      //   .insert({
-      //     id: supabaseUser.id,
-      //     email: supabaseUser.email!,
-      //     plan: 'free',
-      //     credits: 10,
-      //   })
-      //   .select()
-      //   .single();
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .insert({
+          id: supabaseUser.id,
+          email: supabaseUser.email!,
+          plan: 'free',
+          credits: 10,
+        })
+        .select()
+        .single();
 
-      // if (error) {
-      //   console.error('Error creating user profile:', error);
-      //   throw error;
-      // }
+      if (error) {
+        console.error('Error creating user profile:', error);
+        throw error;
+      }
 
-      // setUser(profile);
-      
-      // Temporary: create a mock profile
-      const mockProfile: Tables<'profiles'> = {
-        id: supabaseUser.id,
-        email: supabaseUser.email || '',
-        full_name: null,
-        avatar_url: null,
-        plan: 'free',
-        credits: 10,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-      setUser(mockProfile);
+      setUser(profile);
     } catch (error) {
       console.error('Failed to create user profile:', error);
       throw error;
@@ -137,9 +110,8 @@ export function useAuth(): UseAuthReturn {
   const login = useCallback(async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      const supabaseClient = supabase();
       
-      const { data, error } = await supabaseClient.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -162,8 +134,7 @@ export function useAuth(): UseAuthReturn {
 
   const logout = useCallback(async () => {
     try {
-      const supabaseClient = supabase();
-      const { error } = await supabaseClient.auth.signOut();
+      const { error } = await supabase.auth.signOut();
       if (error) {
         throw error;
       }
@@ -179,9 +150,8 @@ export function useAuth(): UseAuthReturn {
   const signup = useCallback(async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      const supabaseClient = supabase();
       
-      const { data, error } = await supabaseClient.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -219,8 +189,7 @@ export function useAuth(): UseAuthReturn {
 
   const resetPassword = useCallback(async (email: string) => {
     try {
-      const supabaseClient = supabase();
-      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth/reset-password`,
       });
 
