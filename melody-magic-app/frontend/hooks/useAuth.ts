@@ -25,7 +25,8 @@ export function useAuth(): UseAuthReturn {
     checkAuthStatus();
     
     // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    const supabaseClient = supabase();
+    const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(
       async (event, session) => {
         if (event === 'SIGNED_IN' && session) {
           await fetchUserProfile(session.user);
@@ -40,7 +41,8 @@ export function useAuth(): UseAuthReturn {
 
   const checkAuthStatus = useCallback(async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const supabaseClient = supabase();
+      const { data: { session } } = await supabaseClient.auth.getSession();
       if (session) {
         await fetchUserProfile(session.user);
       }
@@ -54,7 +56,8 @@ export function useAuth(): UseAuthReturn {
 
   const fetchUserProfile = useCallback(async (supabaseUser: User) => {
     try {
-      const { data: profile, error } = await supabase
+      const supabaseClient = supabase();
+      const { data: profile, error } = await supabaseClient
         .from('profiles')
         .select('*')
         .eq('id', supabaseUser.id)
@@ -84,7 +87,8 @@ export function useAuth(): UseAuthReturn {
 
   const createUserProfile = useCallback(async (supabaseUser: User) => {
     try {
-      const { data: profile, error } = await supabase
+      const supabaseClient = supabase();
+      const { data: profile, error } = await supabaseClient
         .from('profiles')
         .insert({
           id: supabaseUser.id,
@@ -111,7 +115,8 @@ export function useAuth(): UseAuthReturn {
     try {
       setIsLoading(true);
       
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const supabaseClient = supabase();
+      const { data, error } = await supabaseClient.auth.signInWithPassword({
         email,
         password,
       });
@@ -134,7 +139,8 @@ export function useAuth(): UseAuthReturn {
 
   const logout = useCallback(async () => {
     try {
-      const { error } = await supabase.auth.signOut();
+      const supabaseClient = supabase();
+      const { error } = await supabaseClient.auth.signOut();
       if (error) {
         throw error;
       }
@@ -151,7 +157,8 @@ export function useAuth(): UseAuthReturn {
     try {
       setIsLoading(true);
       
-      const { data, error } = await supabase.auth.signUp({
+      const supabaseClient = supabase();
+      const { data, error } = await supabaseClient.auth.signUp({
         email,
         password,
         options: {
@@ -189,7 +196,8 @@ export function useAuth(): UseAuthReturn {
 
   const resetPassword = useCallback(async (email: string) => {
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      const supabaseClient = supabase();
+      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth/reset-password`,
       });
 
