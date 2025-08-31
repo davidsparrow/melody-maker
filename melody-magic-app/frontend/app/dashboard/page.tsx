@@ -1,107 +1,85 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
-import { useProjectStore } from '@/store/projectStore';
-import { Plus, Music, Clock, CheckCircle, AlertCircle } from 'lucide-react';
-import { DashboardProjectCard } from '@/components/dashboard/DashboardProjectCard';
-import { CreateProjectModal } from '@/components/dashboard/CreateProjectModal';
-import { useUIStore } from '@/store/uiStore';
-import { Project } from '@/types/project';
+import React, { useState } from 'react';
+
+// Mock data for demonstration
+const mockProjects = [
+  {
+    id: '1',
+    userId: 'user-1',
+    title: 'Summer Vibes Track',
+    status: 'completed' as const,
+    createdAt: new Date('2024-01-15T10:00:00Z'),
+    updatedAt: new Date('2024-01-15T11:30:00Z'),
+  },
+  {
+    id: '2',
+    userId: 'user-1',
+    title: 'Late Night Session',
+    status: 'analyzing' as const,
+    createdAt: new Date('2024-01-14T20:00:00Z'),
+    updatedAt: new Date('2024-01-14T20:15:00Z'),
+  },
+  {
+    id: '3',
+    userId: 'user-1',
+    title: 'Acoustic Cover',
+    status: 'draft' as const,
+    createdAt: new Date('2024-01-13T15:00:00Z'),
+    updatedAt: new Date('2024-01-13T15:00:00Z'),
+  },
+];
 
 export default function DashboardPage() {
-  const { user, isAuthenticated, isLoading } = useAuth();
-  const { projects, isLoadingProjects, projectsError, setProjects, setProjectsLoading, setProjectsError } = useProjectStore();
-  const { isUploadModalOpen, setUploadModalOpen } = useUIStore();
-  const router = useRouter();
+  const [projects] = useState(mockProjects);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/auth/login');
-    }
-  }, [isLoading, isAuthenticated, router]);
-
-  // Load projects on mount
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadProjects();
-    }
-  }, [isAuthenticated]);
-
-  const loadProjects = async () => {
-    try {
-      setProjectsLoading(true);
-      setProjectsError(null);
-      
-      // TODO: Replace with actual API call
-      // const response = await apiClient.getProjects();
-      // if (response.success && response.data) {
-      //   setProjects(response.data);
-      // }
-      
-      // Mock data for now
-      const mockProjects: Project[] = [
-        {
-          id: '1',
-          userId: user?.id || '',
-          title: 'Summer Vibes Track',
-          status: 'completed' as const,
-          createdAt: new Date('2024-01-15T10:00:00Z'),
-          updatedAt: new Date('2024-01-15T11:30:00Z'),
-        },
-        {
-          id: '2',
-          userId: user?.id || '',
-          title: 'Late Night Session',
-          status: 'analyzing' as const,
-          createdAt: new Date('2024-01-14T20:00:00Z'),
-          updatedAt: new Date('2024-01-14T20:15:00Z'),
-        },
-      ];
-      
-      setProjects(mockProjects);
-    } catch (error) {
-      setProjectsError(error instanceof Error ? error.message : 'Failed to load projects');
-    } finally {
-      setProjectsLoading(false);
+  const getStatusInfo = (status: string) => {
+    switch (status) {
+      case 'draft':
+        return { label: 'Draft', color: 'badge-primary' };
+      case 'uploading':
+        return { label: 'Uploading', color: 'badge-info' };
+      case 'ready_for_analysis':
+        return { label: 'Ready for Analysis', color: 'badge-info' };
+      case 'analyzing':
+        return { label: 'Analyzing', color: 'badge-warning' };
+      case 'ready_for_generation':
+        return { label: 'Ready for Generation', color: 'badge-info' };
+      case 'generating':
+        return { label: 'Generating', color: 'badge-warning' };
+      case 'completed':
+        return { label: 'Completed', color: 'badge-success' };
+      default:
+        return { label: 'Unknown', color: 'badge-primary' };
     }
   };
 
-  const handleCreateProject = () => {
-    setUploadModalOpen(true);
+  const formatDate = (date: Date) => {
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    }).format(date);
   };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-purple-600"></div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return null; // Will redirect
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="container mx-auto py-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
           <p className="text-gray-600">
-            Welcome back, {user?.email}. Manage your projects and create new AI-generated sections.
+            Welcome back! Manage your projects and create new AI-generated sections.
           </p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="card p-6">
             <div className="flex items-center">
               <div className="p-2 bg-purple-100 rounded-lg">
-                <Music className="h-6 w-6 text-purple-600" />
+                <div className="w-6 h-6 text-purple-600">🎵</div>
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Projects</p>
@@ -110,10 +88,10 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="card p-6">
             <div className="flex items-center">
               <div className="p-2 bg-blue-100 rounded-lg">
-                <Clock className="h-6 w-6 text-blue-600" />
+                <div className="w-6 h-6 text-blue-600">⏱️</div>
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">In Progress</p>
@@ -124,10 +102,10 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="card p-6">
             <div className="flex items-center">
               <div className="p-2 bg-green-100 rounded-lg">
-                <CheckCircle className="h-6 w-6 text-green-600" />
+                <div className="w-6 h-6 text-green-600">✅</div>
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Completed</p>
@@ -140,56 +118,62 @@ export default function DashboardPage() {
         </div>
 
         {/* Projects Section */}
-        <div className="bg-white rounded-lg shadow">
+        <div className="card">
           <div className="px-6 py-4 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-medium text-gray-900">Your Projects</h2>
               <button
-                onClick={handleCreateProject}
-                className="inline-flex items-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors"
+                onClick={() => setIsCreateModalOpen(true)}
+                className="btn btn-primary"
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <span className="mr-2">+</span>
                 New Project
               </button>
             </div>
           </div>
 
           <div className="p-6">
-            {isLoadingProjects ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-              </div>
-            ) : projectsError ? (
+            {projects.length === 0 ? (
               <div className="text-center py-12">
-                <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
-                <p className="text-gray-600 mb-4">{projectsError}</p>
-                <button
-                  onClick={loadProjects}
-                  className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
-                >
-                  Try Again
-                </button>
-              </div>
-            ) : projects.length === 0 ? (
-              <div className="text-center py-12">
-                <Music className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <div className="text-4xl mb-4">🎵</div>
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No projects yet</h3>
                 <p className="text-gray-600 mb-6">
                   Create your first project to start generating AI-powered song sections.
                 </p>
                 <button
-                  onClick={handleCreateProject}
-                  className="inline-flex items-center px-6 py-3 bg-purple-600 text-white font-medium rounded-md hover:bg-purple-700 transition-colors"
+                  onClick={() => setIsCreateModalOpen(true)}
+                  className="btn btn-primary btn-lg"
                 >
-                  <Plus className="h-4 w-4 mr-2" />
+                  <span className="mr-2">+</span>
                   Create Project
                 </button>
               </div>
             ) : (
               <div className="grid gap-4">
-                {projects.map((project) => (
-                  <DashboardProjectCard key={project.id} project={project} />
-                ))}
+                {projects.map((project) => {
+                  const statusInfo = getStatusInfo(project.status);
+                  return (
+                    <div key={project.id} className="card p-4 hover:shadow-md transition-shadow cursor-pointer">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <h3 className="font-medium text-gray-900 mb-1">{project.title}</h3>
+                          <div className="flex items-center gap-4 text-sm text-gray-500">
+                            <span>Created {formatDate(project.createdAt)}</span>
+                            <span>Updated {formatDate(project.updatedAt)}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className={`badge ${statusInfo.color}`}>
+                            {statusInfo.label}
+                          </span>
+                          <button className="btn btn-ghost btn-sm">
+                            ✏️
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -197,7 +181,58 @@ export default function DashboardPage() {
       </div>
 
       {/* Create Project Modal */}
-      <CreateProjectModal />
+      {isCreateModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900">Create New Project</h2>
+              <button
+                onClick={() => setIsCreateModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="projectTitle" className="block text-sm font-medium text-gray-700 mb-2">
+                    Project Title
+                  </label>
+                  <input
+                    type="text"
+                    id="projectTitle"
+                    className="input w-full"
+                    placeholder="Enter project title..."
+                  />
+                </div>
+                <div>
+                  <label htmlFor="projectDescription" className="block text-sm font-medium text-gray-700 mb-2">
+                    Description (Optional)
+                  </label>
+                  <textarea
+                    id="projectDescription"
+                    className="input w-full"
+                    rows={3}
+                    placeholder="Describe your project..."
+                  />
+                </div>
+                <div className="flex space-x-3 pt-4">
+                  <button
+                    onClick={() => setIsCreateModalOpen(false)}
+                    className="btn btn-secondary flex-1"
+                  >
+                    Cancel
+                  </button>
+                  <button className="btn btn-primary flex-1">
+                    Create Project
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
