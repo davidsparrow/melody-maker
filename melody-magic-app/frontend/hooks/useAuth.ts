@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '../lib/supabase';
 import type { User, Session } from '@supabase/supabase-js';
-import type { Tables, Inserts } from '@/lib/supabase';
+import type { Tables, Inserts } from '../lib/supabase';
 
 interface UseAuthReturn {
   user: Tables<'profiles'> | null;
