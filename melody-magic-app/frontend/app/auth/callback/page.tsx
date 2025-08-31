@@ -17,7 +17,8 @@ function AuthCallbackContent() {
 
   const handleAuthCallback = async () => {
     try {
-      const { data, error } = await supabase.auth.getSession();
+      const supabaseClient = supabase();
+      const { data, error } = await supabaseClient.auth.getSession();
       
       if (error) {
         throw error;
@@ -39,7 +40,7 @@ function AuthCallbackContent() {
         
         if (accessToken && refreshToken) {
           // Set the session manually
-          const { error: sessionError } = await supabase.auth.setSession({
+          const { error: sessionError } = await supabaseClient.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken,
           });
