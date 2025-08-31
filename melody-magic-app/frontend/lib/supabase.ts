@@ -5,7 +5,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 // Create a lazy-loaded Supabase client that only initializes when needed
-let supabaseClient: ReturnType<typeof createClient> | null = null;
+let supabaseClient: ReturnType<typeof createClient<Database>> | null = null;
 
 function getSupabaseClient() {
   if (!supabaseClient) {
@@ -16,8 +16,8 @@ function getSupabaseClient() {
       );
     }
 
-    // Create Supabase client
-    supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+    // Create Supabase client with proper database types
+    supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey, {
       auth: {
         autoRefreshToken: true,
         persistSession: true,
