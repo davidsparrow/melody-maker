@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Eye, EyeOff, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
@@ -16,7 +16,6 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState('');
   
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     console.log('useEffect triggered, calling handlePasswordReset'); // Debug

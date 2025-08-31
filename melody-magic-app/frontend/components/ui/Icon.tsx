@@ -16,7 +16,7 @@ const Icon: React.FC<IconProps> = ({ name, size = 20, className = '', onClick })
     style: onClick ? { cursor: 'pointer' } : {}
   };
 
-  const icons: Record<string, JSX.Element> = {
+  const icons: Record<string, React.ReactElement> = {
     // Navigation Icons
     menu: (
       <svg {...iconProps} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
