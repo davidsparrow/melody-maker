@@ -5,11 +5,10 @@ src/
 # Build outputs
 dist/
 build/
-.next/
+melody-magic-app/frontend/.next/
 
 # Dependencies
 node_modules/
-melody-magic-app/frontend/node_modules/
 melody-magic-app/backend/node_modules/
 
 # Environment files
