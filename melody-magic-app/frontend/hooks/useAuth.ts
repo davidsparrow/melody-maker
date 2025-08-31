@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import type { User, Session } from '@supabase/supabase-js';
-import type { Tables } from '@/lib/supabase';
+import type { Tables, Inserts } from '@/lib/supabase';
 
 interface UseAuthReturn {
   user: Tables<'profiles'> | null;
@@ -88,14 +88,16 @@ export function useAuth(): UseAuthReturn {
   const createUserProfile = useCallback(async (supabaseUser: User) => {
     try {
       const supabaseClient = supabase();
+      const profileData: Inserts<'profiles'> = {
+        id: supabaseUser.id,
+        email: supabaseUser.email!,
+        plan: 'free',
+        credits: 10,
+      };
+      
       const { data: profile, error } = await supabaseClient
         .from('profiles')
-        .insert({
-          id: supabaseUser.id,
-          email: supabaseUser.email!,
-          plan: 'free',
-          credits: 10,
-        })
+        .insert(profileData)
         .select()
         .single();
 
