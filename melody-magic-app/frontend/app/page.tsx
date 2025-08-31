@@ -22,17 +22,17 @@ export default function LandingPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="/dashboard"
+                href="/auth/signup"
                 className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-lg text-lg hover:from-purple-700 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg"
               >
                 Start Creating Free
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
               <Link
-                href="/dashboard"
+                href="/auth/login"
                 className="inline-flex items-center justify-center px-8 py-4 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg text-lg hover:border-gray-400 hover:bg-gray-50 transition-all"
               >
-                Try Demo
+                Sign In
               </Link>
             </div>
           </div>
@@ -105,7 +105,7 @@ export default function LandingPage() {
             Join thousands of producers who are already using AI to enhance their creative process.
           </p>
           <Link
-            href="/dashboard"
+            href="/auth/signup"
             className="inline-flex items-center justify-center px-8 py-4 bg-white text-purple-600 font-semibold rounded-lg text-lg hover:bg-gray-50 transition-all transform hover:scale-105 shadow-lg"
           >
             Start Creating Now

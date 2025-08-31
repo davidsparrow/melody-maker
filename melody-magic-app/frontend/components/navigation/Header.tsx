@@ -117,13 +117,13 @@ export function Header() {
           ) : (
             <div className="flex items-center space-x-3">
               <Link
-                href="/login"
+                href="/auth/login"
                 className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
               >
                 Sign In
               </Link>
               <Link
-                href="/signup"
+                href="/auth/signup"
                 className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:from-purple-700 hover:to-blue-700 transition-colors"
               >
                 Get Started
