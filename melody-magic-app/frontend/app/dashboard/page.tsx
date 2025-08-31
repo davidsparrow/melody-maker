@@ -2,13 +2,25 @@
 
 import React, { useState } from 'react';
 
+// Project interface with description field
+interface Project {
+  id: string;
+  userId: string;
+  title: string;
+  description?: string;
+  status: 'draft' | 'uploading' | 'ready_for_analysis' | 'analyzing' | 'ready_for_generation' | 'generating' | 'completed';
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 // Mock data for demonstration
-const mockProjects = [
+const mockProjects: Project[] = [
   {
     id: '1',
     userId: 'user-1',
     title: 'Summer Vibes Track',
-    status: 'completed' as const,
+    description: 'Upbeat summer track with tropical vibes',
+    status: 'completed',
     createdAt: new Date('2024-01-15T10:00:00Z'),
     updatedAt: new Date('2024-01-15T11:30:00Z'),
   },
@@ -16,7 +28,8 @@ const mockProjects = [
     id: '2',
     userId: 'user-1',
     title: 'Late Night Session',
-    status: 'analyzing' as const,
+    description: 'Chill electronic track for late night listening',
+    status: 'analyzing',
     createdAt: new Date('2024-01-14T20:00:00Z'),
     updatedAt: new Date('2024-01-14T20:15:00Z'),
   },
@@ -24,17 +37,21 @@ const mockProjects = [
     id: '3',
     userId: 'user-1',
     title: 'Acoustic Cover',
-    status: 'draft' as const,
+    description: 'Acoustic guitar cover of a popular song',
+    status: 'draft',
     createdAt: new Date('2024-01-13T15:00:00Z'),
     updatedAt: new Date('2024-01-13T15:00:00Z'),
   },
 ];
 
 export default function DashboardPage() {
-  const [projects] = useState(mockProjects);
+  const [projects, setProjects] = useState<Project[]>(mockProjects);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [newProjectTitle, setNewProjectTitle] = useState('');
+  const [newProjectDescription, setNewProjectDescription] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
 
-  const getStatusInfo = (status: string) => {
+  const getStatusInfo = (status: Project['status']) => {
     switch (status) {
       case 'draft':
         return { label: 'Draft', color: 'badge-primary' };
@@ -61,6 +78,47 @@ export default function DashboardPage() {
       day: 'numeric',
       year: 'numeric'
     }).format(date);
+  };
+
+  const handleCreateProject = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newProjectTitle.trim()) return;
+
+    setIsCreating(true);
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Create new project
+      const newProject: Project = {
+        id: Date.now().toString(),
+        userId: 'user-1',
+        title: newProjectTitle.trim(),
+        description: newProjectDescription.trim() || undefined,
+        status: 'draft',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      
+      // Add to projects list
+      setProjects(prev => [newProject, ...prev]);
+      
+      // Reset form and close modal
+      setNewProjectTitle('');
+      setNewProjectDescription('');
+      setIsCreateModalOpen(false);
+      
+    } catch (error) {
+      console.error('Failed to create project:', error);
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const handleProjectClick = (projectId: string) => {
+    // Navigate to project detail page
+    window.location.href = `/project/${projectId}`;
   };
 
   return (
@@ -153,10 +211,17 @@ export default function DashboardPage() {
                 {projects.map((project) => {
                   const statusInfo = getStatusInfo(project.status);
                   return (
-                    <div key={project.id} className="card p-4 hover:shadow-md transition-shadow cursor-pointer">
+                    <div 
+                      key={project.id} 
+                      className="card p-4 hover:shadow-md transition-shadow cursor-pointer"
+                      onClick={() => handleProjectClick(project.id)}
+                    >
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <h3 className="font-medium text-gray-900 mb-1">{project.title}</h3>
+                          {project.description && (
+                            <p className="text-sm text-gray-600 mb-2">{project.description}</p>
+                          )}
                           <div className="flex items-center gap-4 text-sm text-gray-500">
                             <span>Created {formatDate(project.createdAt)}</span>
                             <span>Updated {formatDate(project.updatedAt)}</span>
@@ -166,7 +231,14 @@ export default function DashboardPage() {
                           <span className={`badge ${statusInfo.color}`}>
                             {statusInfo.label}
                           </span>
-                          <button className="btn btn-ghost btn-sm">
+                          <button 
+                            className="btn btn-ghost btn-sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // TODO: Implement edit functionality
+                              console.log('Edit project:', project.id);
+                            }}
+                          >
                             ✏️
                           </button>
                         </div>
@@ -189,21 +261,26 @@ export default function DashboardPage() {
               <button
                 onClick={() => setIsCreateModalOpen(false)}
                 className="text-gray-400 hover:text-gray-600 transition-colors"
+                disabled={isCreating}
               >
                 ✕
               </button>
             </div>
-            <div className="p-6">
+            <form onSubmit={handleCreateProject} className="p-6">
               <div className="space-y-4">
                 <div>
                   <label htmlFor="projectTitle" className="block text-sm font-medium text-gray-700 mb-2">
-                    Project Title
+                    Project Title *
                   </label>
                   <input
                     type="text"
                     id="projectTitle"
+                    value={newProjectTitle}
+                    onChange={(e) => setNewProjectTitle(e.target.value)}
                     className="input w-full"
                     placeholder="Enter project title..."
+                    required
+                    disabled={isCreating}
                   />
                 </div>
                 <div>
@@ -212,24 +289,40 @@ export default function DashboardPage() {
                   </label>
                   <textarea
                     id="projectDescription"
+                    value={newProjectDescription}
+                    onChange={(e) => setNewProjectDescription(e.target.value)}
                     className="input w-full"
                     rows={3}
                     placeholder="Describe your project..."
+                    disabled={isCreating}
                   />
                 </div>
                 <div className="flex space-x-3 pt-4">
                   <button
+                    type="button"
                     onClick={() => setIsCreateModalOpen(false)}
                     className="btn btn-secondary flex-1"
+                    disabled={isCreating}
                   >
                     Cancel
                   </button>
-                  <button className="btn btn-primary flex-1">
-                    Create Project
+                  <button 
+                    type="submit" 
+                    className="btn btn-primary flex-1"
+                    disabled={!newProjectTitle.trim() || isCreating}
+                  >
+                    {isCreating ? (
+                      <>
+                        <div className="loading-spinner" />
+                        Creating...
+                      </>
+                    ) : (
+                      'Create Project'
+                    )}
                   </button>
                 </div>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       )}
